@@ -1,5 +1,6 @@
 package com.shoppingcart.sbhibernateshoppingcart.config;
 
+import com.shoppingcart.sbhibernateshoppingcart.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,5 +42,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // When user login, role XX.
         // But access to the page requires the YY role,
         // An AccessDeniedException will be thrown.
+        http.authorizeRequests().and().exceptionHandling().accessDeniedPage("403");
+
+        //Configuration for Login Form
+        http.authorizeRequests().and().formLogin()
+
+                .loginProcessingUrl("security_check")
+                .loginPage("/admin/login")
+                .defaultSuccessUrl("admin/accountInfo")
+                .failureUrl("/admin/login?error=true")
+                .usernameParameter("userName")
+                .passwordParameter("password")
+
+                //Configuration for the Logout page.
+                //(After logout, got to home page)
+                .and().logout().logoutUrl("/admin/logout").logoutSuccessUrl("/");
     }
 }
