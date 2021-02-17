@@ -4,10 +4,7 @@ import com.shoppingcart.sbhibernateshoppingcart.entity.Order;
 
 import com.shoppingcart.sbhibernateshoppingcart.entity.OrderDetail;
 import com.shoppingcart.sbhibernateshoppingcart.entity.Product;
-import com.shoppingcart.sbhibernateshoppingcart.model.CartInfo;
-import com.shoppingcart.sbhibernateshoppingcart.model.CartLineInfo;
-import com.shoppingcart.sbhibernateshoppingcart.model.CustomerInfo;
-import com.shoppingcart.sbhibernateshoppingcart.model.OrderInfo;
+import com.shoppingcart.sbhibernateshoppingcart.model.*;
 import com.shoppingcart.sbhibernateshoppingcart.pagination.PaginationResult;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -85,7 +82,7 @@ public class OrderDAO {
     }
 
     //@page=1, 2...
-    public PaginationResult<OrderInfo> listOrderInfo(int page, int maxResult, int MaxNavigationPage) {
+    public PaginationResult<OrderInfo> listOrderInfo(int page, int maxResult, int maxNavigationPage) {
         String sql = "Select new " + OrderInfo.class.getName()
                 + "(ord.id, ord.orderDate, ord.orderNum, ord.amount, "
                 + "ord.customerName, ord.customerAddress, ord.customerEmail, ord.customerPhone) " + "from "
@@ -109,5 +106,18 @@ public class OrderDAO {
         return new OrderInfo(order.getId(), order.getOrderDate(), order.getOrderNum(),
                 order.getAmount(), order.getCustomerName(), order.getCustomerAddress(),
                 order.getCustomerEmail(), order.getCustomerPhone());
+    }
+
+    public List<OrderDetailInfo>listOrderDetailInfos(String orderId) {
+        String sql = "Select new " + OrderDetailInfo.class.getName()
+                + "(d.id, d.product.code, d.product,name, d.quantity, d.price, d.amount)"
+                + " from " + OrderDetail.class.getName() + " d " + "where d.order.id = :orderId";
+
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<OrderDetailInfo> query = session.createQuery(sql, OrderDetailInfo.class);
+        query.setParameter("orderId", orderId);
+
+        return query.getResultList();
+
     }
 }
