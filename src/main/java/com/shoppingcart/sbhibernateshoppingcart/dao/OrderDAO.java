@@ -7,6 +7,8 @@ import com.shoppingcart.sbhibernateshoppingcart.entity.Product;
 import com.shoppingcart.sbhibernateshoppingcart.model.CartInfo;
 import com.shoppingcart.sbhibernateshoppingcart.model.CartLineInfo;
 import com.shoppingcart.sbhibernateshoppingcart.model.CustomerInfo;
+import com.shoppingcart.sbhibernateshoppingcart.model.OrderInfo;
+import com.shoppingcart.sbhibernateshoppingcart.pagination.PaginationResult;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -70,7 +72,42 @@ public class OrderDAO {
             detail.setQuantity(line.getQuantity());
 
             String code = line.getProductInfo().getCode();
-            Product product = this.productDAO.fin
+            Product product = this.productDAO.findProduct(code);
+            detail.setProduct(product);
+
+            session.persist(detail);
         }
+
+        //Order Number!
+        cartInfo.setOrderNum(orderNum);
+        //Flush
+        session.flush();
+    }
+
+    //@page=1, 2...
+    public PaginationResult<OrderInfo> listOrderInfo(int page, int maxResult, int MaxNavigationPage) {
+        String sql = "Select new " + OrderInfo.class.getName()
+                + "(ord.id, ord.orderDate, ord.orderNum, ord.amount, "
+                + "ord.customerName, ord.customerAddress, ord.customerEmail, ord.customerPhone) " + "from "
+                + Order.class.getName() + " ord" + " order by ord.ordNum desc";
+
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<OrderInfo> query = session.createQuery(sql, OrderInfo.class);
+        return new PaginationResult<OrderInfo>(query, page, maxResult, maxNavigationPage);
+    }
+
+    public Order findOrder(String orderId) {
+        Session session = this.sessionFactory.getCurrentSession();
+        return session.find(Order.class, orderId);
+    }
+
+    public OrderInfo getOrderInfo(String orderId) {
+        Order order = this.findOrder(orderId);
+        if (order == null) {
+            return null;
+        }
+        return new OrderInfo(order.getId(), order.getOrderDate(), order.getOrderNum(),
+                order.getAmount(), order.getCustomerName(), order.getCustomerAddress(),
+                order.getCustomerEmail(), order.getCustomerPhone());
     }
 }

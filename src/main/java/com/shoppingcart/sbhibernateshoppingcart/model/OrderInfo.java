@@ -17,9 +17,13 @@ public class OrderInfo {
 
     private List<OrderDetailInfo> details;
 
+    public OrderInfo() {
+
+    }
+
     public OrderInfo(String id, Date orderDate, int orderNum, double amount,
                      String customerName, String customerAddress, String customerEmail,
-                     String customerPhone, List<OrderDetailInfo> details)
+                     String customerPhone)
     {
         this.id = id;
         this.orderDate = orderDate;
@@ -29,7 +33,6 @@ public class OrderInfo {
         this.customerAddress = customerAddress;
         this.customerEmail = customerEmail;
         this.customerPhone = customerPhone;
-        this.details = details;
     }
 
     public String getId() {
