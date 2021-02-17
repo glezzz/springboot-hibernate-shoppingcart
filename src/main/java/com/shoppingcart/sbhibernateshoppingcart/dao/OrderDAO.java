@@ -2,12 +2,16 @@ package com.shoppingcart.sbhibernateshoppingcart.dao;
 
 import com.shoppingcart.sbhibernateshoppingcart.entity.Order;
 
+import com.shoppingcart.sbhibernateshoppingcart.model.CartInfo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Transactional
 @Repository
@@ -34,9 +38,12 @@ public class OrderDAO {
     public void saveOrder(CartInfo cartInfo) {
         Session session = this.sessionFactory.getCurrentSession();
 
-        int orderNum = this.getMaxOrderNum() + 1;\
+        int orderNum = this.getMaxOrderNum() + 1;
         Order order = new Order();
 
-        order.setId();
+        order.setId(UUID.randomUUID().toString());
+        order.setOrderNum(orderNum);
+        order.setOrderDate(new Date());
+        order.setAmount();
     }
 }
