@@ -1,8 +1,8 @@
-package com.shoppingcart.sbhibernateshoppingcart.model;
+package com.shoppingcart.sbhibernateshoppingcart.form;
 
-import com.shoppingcart.sbhibernateshoppingcart.form.CustomerForm;
+import com.shoppingcart.sbhibernateshoppingcart.model.CustomerInfo;
 
-public class CustomerInfo {
+public class CustomerForm {
 
     private String name;
     private String address;
@@ -10,12 +10,12 @@ public class CustomerInfo {
     private String phone;
     private boolean valid;
 
-    public CustomerInfo(CustomerForm customerForm) {
-        this.name = customerForm.getName();
-        this.address = customerForm.getAddress();
-        this.email = customerForm.getEmail();
-        this.phone = customerForm.getPhone();
-        this.valid = customerForm.isValid();
+    public CustomerForm(CustomerInfo customerInfo) {
+        this.name = customerInfo.getName();
+        this.address = customerInfo.getAddress();
+        this.email = customerInfo.getEmail();
+        this.phone = customerInfo.getPhone();
+        this.valid = customerInfo.isValid();
     }
 
     public String getName() {

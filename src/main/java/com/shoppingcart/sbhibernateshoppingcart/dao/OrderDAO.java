@@ -2,7 +2,11 @@ package com.shoppingcart.sbhibernateshoppingcart.dao;
 
 import com.shoppingcart.sbhibernateshoppingcart.entity.Order;
 
+import com.shoppingcart.sbhibernateshoppingcart.entity.OrderDetail;
+import com.shoppingcart.sbhibernateshoppingcart.entity.Product;
 import com.shoppingcart.sbhibernateshoppingcart.model.CartInfo;
+import com.shoppingcart.sbhibernateshoppingcart.model.CartLineInfo;
+import com.shoppingcart.sbhibernateshoppingcart.model.CustomerInfo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Transactional
@@ -44,6 +49,28 @@ public class OrderDAO {
         order.setId(UUID.randomUUID().toString());
         order.setOrderNum(orderNum);
         order.setOrderDate(new Date());
-        order.setAmount();
+        order.setAmount(cartInfo.getAmountTotal());
+
+        CustomerInfo customerInfo = cartInfo.getCustomerInfo();
+        order.setCustomerName(customerInfo.getName());
+        order.setCustomerEmail(customerInfo.getEmail());
+        order.setCustomerPhone(customerInfo.getPhone());
+        order.setCustomerAddress(customerInfo.getAddress());
+
+        session.persist(order);
+
+        List<CartLineInfo> lines = cartInfo.getCartLines();
+
+        for (CartLineInfo line : lines) {
+            OrderDetail detail = new OrderDetail();
+            detail.setId(UUID.randomUUID().toString());
+            detail.setOrder(order);
+            detail.setAmount(line.getAmount());
+            detail.setPrice(line.getProductInfo().getPrice());
+            detail.setQuantity(line.getQuantity());
+
+            String code = line.getProductInfo().getCode();
+            Product product = this.productDAO.fin
+        }
     }
 }
