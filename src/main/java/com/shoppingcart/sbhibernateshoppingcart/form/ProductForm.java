@@ -1,5 +1,6 @@
 package com.shoppingcart.sbhibernateshoppingcart.form;
 
+import com.shoppingcart.sbhibernateshoppingcart.entity.Product;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ProductForm {
@@ -15,10 +16,10 @@ public class ProductForm {
         this.newProduct = true;
     }
 
-    public ProductForm(String code, String name, double price) {
-        this.code = code;
-        this.name = name;
-        this.price = price;
+    public ProductForm(Product product) {
+        this.code = product.getCode();
+        this.name = product.getName();
+        this.price = product.getPrice();
     }
 
     public String getCode() {

@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 @Transactional
@@ -118,7 +120,7 @@ public class MainController {
     }
 
     //POST: Update quantity for product in cart
-    @RequestMapping(value = { "/shoppingCart" }, method = RequestMethod.POST)
+    @RequestMapping(value = {"/shoppingCart"}, method = RequestMethod.POST)
     public String shoppingCartUpdateQty(HttpServletRequest request, Model model,
                                         @ModelAttribute("cartForm") CartInfo cartForm) {
 
@@ -172,5 +174,77 @@ public class MainController {
         cartInfo.setCustomerInfo(customerInfo);
 
         return "redirect:/shoppingCartConfirmation";
+    }
+
+    // GET: Show information to confirm.
+    @RequestMapping(value = {"/shoppingCartConfirmation"}, method = RequestMethod.GET)
+    public String shoppingCartConfirmationReview(HttpServletRequest request, Model model) {
+        CartInfo cartInfo = Utils.getCartInSession(request);
+
+        if (cartInfo.isEmpty()) {
+            return "redirect:/shoppingCart";
+
+        } else if (!cartInfo.isValidCustomer()) {
+            return "redirect:/shoppingCartCustomer";
+        }
+        model.addAttribute("myCart", cartInfo);
+
+        return "shoppingCartConfirmation";
+    }
+
+    // POST: Submit Cart (Save)
+    @RequestMapping(value = {"/shoppingCartConfirmation"}, method = RequestMethod.POST)
+
+    public String shoppingCartConfirmationSave(HttpServletRequest request, Model model) {
+        CartInfo cartInfo = Utils.getCartInSession(request);
+
+        if (cartInfo.isEmpty()) {
+            return "redirect:/shoppingCart";
+
+        } else if (!cartInfo.isValidCustomer()) {
+            return "redirect:/shoppingCartCustomer";
+
+        }
+        try {
+            orderDAO.saveOrder(cartInfo);
+
+        } catch (Exception e) {
+            return "shoppingCartConfirmation";
+
+        }
+
+        // Remove Cart from Session.
+        Utils.removeCartInSession(request);
+
+        // Store last cart.
+        Utils.storeLastOrderedCartInSession(request, cartInfo);
+
+        return "redirect:/shoppingCartFinalize";
+    }
+
+    @RequestMapping(value = {"/shoppingCartFinalize"}, method = RequestMethod.GET)
+    public String shoppingCartFinalize(HttpServletRequest request, Model model) {
+
+        CartInfo lastOrderedCart = Utils.getLastOrderedCartInSession(request);
+
+        if (lastOrderedCart == null) {
+            return "redirect:/shoppingCart";
+        }
+        model.addAttribute("lastOrderedCart", lastOrderedCart);
+        return "shoppingCartFinalize";
+    }
+
+    @RequestMapping(value = {"/productImage"}, method = RequestMethod.GET)
+    public void productImage(HttpServletRequest request, HttpServletResponse response, Model model,
+                             @RequestParam("code") String code) throws IOException {
+        Product product = null;
+        if (code != null) {
+            product = this.productDAO.findProduct(code);
+        }
+        if (product != null && product.getImage() != null) {
+            response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
+            response.getOutputStream().write(product.getImage());
+        }
+        response.getOutputStream().close();
     }
 }
